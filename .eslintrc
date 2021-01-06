@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "oclif",
+    "oclif-typescript"
+  ],
+  "rules": {
+    "comma-dangle": "off",
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["off"],
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "indent": ["error", 2, {"SwitchCase":  1}],
+    "padded-blocks": "off"
+  }
+}

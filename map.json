@@ -1,8 +1,0 @@
-{
-	"/pccs": {
-		"code": 429,
-		"headers": {
-			"Retry-After": 3
-		}
-	}
-}

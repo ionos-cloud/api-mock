@@ -1,52 +1,67 @@
-# Api Mock
+@ionos-cloud/api-mock
+=====================
 
-Mocks an API given a response map in json format
+Ionos Cloud API Mock Engine
 
-## Usage
+[![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
+
+<!-- toc -->
+* [Usage](#usage)
+* [Commands](#commands)
+<!-- tocstop -->
+# Usage
+<!-- usage -->
+```sh-session
+$ npm install -g @ionos-cloud/api-mock
+$ csdk-api-mock COMMAND
+running command...
+$ csdk-api-mock (-v|--version|version)
+@ionos-cloud/api-mock/1.0.0 darwin-x64 node-v14.15.0
+$ csdk-api-mock --help [COMMAND]
+USAGE
+  $ csdk-api-mock COMMAND
+...
+```
+<!-- usagestop -->
+# Commands
+<!-- commands -->
+* [`csdk-api-mock hello [FILE]`](#csdk-api-mock-hello-file)
+* [`csdk-api-mock help [COMMAND]`](#csdk-api-mock-help-command)
+
+## `csdk-api-mock hello [FILE]`
+
+describe the command here
 
 ```
-$ node apimock.js map.json
+USAGE
+  $ csdk-api-mock hello [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+
+EXAMPLE
+  $ csdk-api-mock hello
+  hello world from ./src/hello.ts!
 ```
 
-This will start a server listening on _http://localhost:8080_ .
+_See code: [src/commands/hello.ts](https://github.com/ionos-cloud/api-mock/blob/v1.0.0/src/commands/hello.ts)_
 
-If you want to specify the port, you can use the second argument.
+## `csdk-api-mock help [COMMAND]`
+
+display help for csdk-api-mock
+
 ```
-$ node apimock.js map.json 8080
-```
+USAGE
+  $ csdk-api-mock help [COMMAND]
 
-## map.json format
+ARGUMENTS
+  COMMAND  command to show help for
 
-```json
-{
-
-	"/no/body/or/headers": {
-		"code": 200
-	},
-
-	"/path/to/endpoint": {
-		"code": 429,
-		"headers": {
-			"Retry-After": 2
-		}
-	},
-
-	"/some/other/endpoint": {
-		"code": 200,
-		"headers": {
-			"Content-Type": "application/json"
-		},
-		"body": {
-			"key": "value",
-			"foo": "bar"
-		}
-	}
-}
+OPTIONS
+  --all  see all commands in CLI
 ```
 
-The _code_, _headers_ and _body_ properties are all optional.
-
-If no code is specified, 200 is returned.
-
-If the endpoint is not found in the map, 404 is returned.
-
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
+<!-- commandsstop -->
