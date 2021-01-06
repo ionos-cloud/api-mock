@@ -1,6 +1,6 @@
 import {Command, flags} from '@oclif/command'
 
-export default class Hello extends Command {
+export default class Run extends Command {
   static description = 'run a mock server using an endpoint map'
 
   static examples = [
@@ -10,19 +10,19 @@ export default class Hello extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
     port: flags.string({
-      char: 'p'
+      char: 'p',
+      default: '8080'
     })
   }
 
   static args = [{name: 'file'}]
 
   async run() {
-    const {args, flags} = this.parse(Hello)
-
-    const name = flags.name ?? 'world'
-    this.log(`hello ${name} from ./src/commands/hello.ts`)
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`)
+    const {args, flags} = this.parse(Run)
+    if (args.file === undefined) {
+      throw new Error('No endpoint map specified')
     }
+    
+
   }
 }
