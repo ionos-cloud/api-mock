@@ -17,8 +17,6 @@ export class Spec {
       this.data[path] = revive(obj[path], Endpoint)
 
     }
-
-    console.log(this.data)
   }
 
   matchRequest(req: IncomingMessage): Response {

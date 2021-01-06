@@ -43,10 +43,10 @@ OPTIONS
 
 EXAMPLE
   $ csdk-api-mock hello
-  hello world from ./src/hello.ts!
+  hello world from ./src/run.ts!
 ```
 
-_See code: [src/commands/hello.ts](https://github.com/ionos-cloud/api-mock/blob/v1.0.0/src/commands/hello.ts)_
+_See code: [src/commands/run.ts](https://github.com/ionos-cloud/api-mock/blob/v1.0.0/src/commands/hello.ts)_
 
 ## `csdk-api-mock help [COMMAND]`
 

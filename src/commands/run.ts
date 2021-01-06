@@ -1,4 +1,6 @@
 import {Command, flags} from '@oclif/command'
+import {Server} from '../models/server';
+import {readFileSync} from 'fs';
 
 export default class Run extends Command {
   static description = 'run a mock server using an endpoint map'
@@ -22,7 +24,15 @@ export default class Run extends Command {
     if (args.file === undefined) {
       throw new Error('No endpoint map specified')
     }
-    
 
+    let port: number | undefined
+    if (flags.port !== undefined) {
+      port = Number(flags.port)
+      if (isNaN(port)) {
+        throw new TypeError(`invalid port: ${flags.port}`)
+      }
+    }
+    const server = new Server(readFileSync(args.file).toString(), port)
+    server.run()
   }
 }
