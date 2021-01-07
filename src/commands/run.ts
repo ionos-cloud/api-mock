@@ -1,6 +1,7 @@
 import {Command, flags} from '@oclif/command'
 import {Server} from '../models/server';
 import {readFileSync} from 'fs';
+import configService from '../services/config.service'
 
 export default class Run extends Command {
   static description = 'run a mock server using an endpoint map'
@@ -14,6 +15,10 @@ export default class Run extends Command {
     port: flags.string({
       char: 'p',
       default: '8080'
+    }),
+    debug: flags.boolean({
+      char: 'd',
+      default: false
     })
   }
 
@@ -32,6 +37,9 @@ export default class Run extends Command {
         throw new TypeError(`invalid port: ${flags.port}`)
       }
     }
+
+    configService.setDebug(flags.debug)
+
     const server = new Server(readFileSync(args.file).toString(), port)
     server.run()
   }

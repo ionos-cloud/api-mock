@@ -1,5 +1,6 @@
 import {cli} from 'cli-ux'
 import chalk from 'chalk'
+import configService from './config.service'
 
 export class CliService {
   protected indentLevel = 1
@@ -42,12 +43,14 @@ export class CliService {
   }
 
   public error(msg: string) {
-    cli.error(msg)
+    cli.info(chalk.red('  ! ERROR: ') + chalk.redBright(msg))
   }
 
   public debug(msg: string) {
-    // eslint-disable-next-line no-console
-    console.debug(chalk.gray('  ⇢ (debug)'), chalk.gray(msg))
+    if (configService.isDebug()) {
+      // eslint-disable-next-line no-console
+      console.debug(chalk.gray('  ⇢ (debug)'), chalk.gray(msg))
+    }
   }
 
   public print(msg: string) {

@@ -2,6 +2,7 @@ import {IncomingMessage, OutgoingHttpHeaders, ServerResponse} from 'http'
 import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
+import cliService from '../services/cli.service'
 
 interface Resp {
   code: number;
@@ -106,9 +107,13 @@ export class Response {
 
     /* eval the if clause */
     // eslint-disable-next-line prefer-const
-    let ifResult = true
-    // eslint-disable-next-line no-eval
-    eval(`ifResult = (${this.if})`)
+    let ifResult = false
+    try {
+      // eslint-disable-next-line no-eval
+      eval(`ifResult = (${this.if})`)
+    } catch (error) {
+      cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
+    }
 
     return ifResult
   }

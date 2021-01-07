@@ -4,6 +4,7 @@ import cliService from '../services/cli.service'
 import registry from '../services/symbol-registry'
 
 import * as http from 'http'
+import chalk from 'chalk'
 
 const DEFAULT_PORT = 8080
 export class Server {
@@ -23,8 +24,7 @@ export class Server {
     http.createServer((req: IncomingMessage, res: ServerResponse) => {
 
       try {
-        cliService.info(`incoming request: ${req.method} ${req.url}`)
-        console.log(registry.getAll())
+        cliService.h1(`${req.method} ${req.url}`)
         if (req.method === undefined) return
 
         if (['PUT', 'PATCH', 'POST'].includes(req.method)) {
@@ -44,7 +44,7 @@ export class Server {
         }
 
       } catch (error) {
-        console.log(error.message)
+        cliService.info(chalk.redBright('ERROR:') + ' ' + chalk.red(error.message))
         res.writeHead(500);
         res.write(JSON.stringify({
           error: error.message,

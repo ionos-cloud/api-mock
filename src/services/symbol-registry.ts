@@ -1,9 +1,12 @@
 import {JSONPath} from 'jsonpath-plus'
+import cliService from './cli.service'
 
 export class SymbolRegistry {
   protected data: {[key: string]: any} = {}
 
   public save(key: string, value: any): this {
+
+    cliService.debug(`(state) set ${key} = ${JSON.stringify(value)}`)
     if (!key.includes('.')) {
       this.data[key] = value
       return this
@@ -38,7 +41,7 @@ export class SymbolRegistry {
 
   public del(key: string): this {
 
-    console.log('removing key: ' + key)
+    cliService.debug(`(state) removing key ${key}`)
     if (!key.includes('.')) {
       delete this.data[key]
       return this
@@ -52,7 +55,6 @@ export class SymbolRegistry {
       obj = obj[parts[i]]
     }
     delete obj[parts[parts.length - 1]]
-    console.log(this.data)
     return this
 
   }

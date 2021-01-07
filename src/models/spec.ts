@@ -34,9 +34,9 @@ export class Spec {
     const responses = this.data[url].matchRequest(req)
     for (const response of responses) {
       if (response.checkIf(req, reqBody)) {
-        cliService.info(`response with code ${response.code} matched`)
+        cliService.info(`${response.code} response matched`)
         if (response.if !== undefined) {
-          cliService.info(`if condition was: ${response.if}`)
+          cliService.debug(`if condition was: ${response.if}`)
         }
         return response
       }
