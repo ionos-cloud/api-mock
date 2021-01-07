@@ -12,6 +12,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "indent": ["error", 2, {"SwitchCase":  1}],
     "padded-blocks": "off",
-    "no-trailing-spaces": "off"
+    "no-trailing-spaces": "off",
+    "lines-between-class-members": "off"
   }
 }

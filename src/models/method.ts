@@ -2,17 +2,19 @@ import {Response} from './response'
 import {RevivalSchema} from 'revivejs'
 
 export class Method {
-  response: Response = new Response()
+  responses: Response[] = []
 
-  getResponse(): Response {
-    return this.response
+  getResponses(): Response[] {
+    return this.responses
   }
 
   static getRevivalSchema(): RevivalSchema<Method> {
     return {
       type: Method,
       properties: {
-        response: Response
+        responses: {
+          items: Response
+        }
       }
     }
   }

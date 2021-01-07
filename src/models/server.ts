@@ -1,6 +1,7 @@
 import {IncomingMessage, ServerResponse} from 'http'
 import {Spec} from './spec'
 import cliService from '../services/cli.service'
+import registry from '../services/symbol-registry'
 
 import * as http from 'http'
 
@@ -22,8 +23,28 @@ export class Server {
     http.createServer((req: IncomingMessage, res: ServerResponse) => {
 
       try {
-        this.spec.matchRequest(req).render(req, res)
+        cliService.info(`incoming request: ${req.method} ${req.url}`)
+        console.log(registry.getAll())
+        if (req.method === undefined) return
+
+        if (['PUT', 'PATCH', 'POST'].includes(req.method)) {
+          /* we have a body */
+          const buffer: Uint8Array[] = []
+          let body = ''
+          req
+            .on('data', chunk => {
+              buffer.push(chunk)
+            })
+            .on('end', () => {
+              body = JSON.parse(Buffer.concat(buffer).toString())
+              this.spec.matchRequest(req, body).render(req, res, body)
+            })
+        } else {
+          this.spec.matchRequest(req).render(req, res)
+        }
+
       } catch (error) {
+        console.log(error.message)
         res.writeHead(500);
         res.write(JSON.stringify({
           error: error.message,

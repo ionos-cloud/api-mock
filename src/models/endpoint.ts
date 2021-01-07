@@ -12,39 +12,40 @@ export class Endpoint {
 
   patch?: Method = undefined
 
+  delete?: Method = undefined
+
   static getRevivalSchema(): RevivalSchema<Endpoint> {
     return {
       type: Endpoint,
       properties: {
-        get: {
-          type: Method,
-          properties: {
-            response: Response
-          }
-        },
+        get: Method,
         post: Method,
         put: Method,
-        patch: Method
+        patch: Method,
+        delete: Method
       }
     }
   }
 
-  matchRequest(req: IncomingMessage): Response {
+  matchRequest(req: IncomingMessage): Response[] {
 
     if (req.method === undefined) throw new Error('undefined HTTP method')
 
     switch (req.method.toLowerCase()) {
       case 'get':
-        if (this.get !== undefined) return this.get.getResponse()
+        if (this.get !== undefined) return this.get.getResponses()
         break
       case 'post':
-        if (this.post !== undefined) return this.post.getResponse()
+        if (this.post !== undefined) return this.post.getResponses()
         break
       case 'patch':
-        if (this.patch !== undefined) return this.patch.getResponse()
+        if (this.patch !== undefined) return this.patch.getResponses()
         break
       case 'put':
-        if (this.put !== undefined) return this.put.getResponse()
+        if (this.put !== undefined) return this.put.getResponses()
+        break
+      case 'delete':
+        if (this.delete !== undefined) return this.delete.getResponses()
         break
     }
 
