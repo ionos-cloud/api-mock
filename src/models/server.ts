@@ -44,8 +44,12 @@ export class Server {
         }
 
       } catch (error) {
-        cliService.info(chalk.redBright('ERROR:') + ' ' + chalk.red(error.message))
-        res.writeHead(500);
+        cliService.error(error.message)
+        if (error.code === undefined) {
+          res.writeHead(500);
+        } else {
+          res.writeHead(error.code)
+        }
         res.write(JSON.stringify({
           error: error.message,
           stack: error.stack,

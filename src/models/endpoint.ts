@@ -2,6 +2,7 @@ import {Response} from './response';
 import {RevivalSchema} from 'revivejs';
 import {IncomingMessage} from 'http';
 import {Method} from './method';
+import {MockError} from '../errors/mock.error'
 
 export class Endpoint {
   get?: Method = undefined
@@ -49,6 +50,6 @@ export class Endpoint {
         break
     }
 
-    throw new Error(`method ${req.method} not defined in endpoint spec`)
+    throw new MockError(`method ${req.method} not defined in endpoint spec`, 404)
   }
 }

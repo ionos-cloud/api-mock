@@ -5,6 +5,7 @@ import {Response} from './response'
 import cliService from '../services/cli.service'
 
 import util = require('util')
+import {MockError} from '../errors/mock.error'
 
 export class Spec {
   data: {[key: string]: Endpoint} = {}
@@ -29,7 +30,7 @@ export class Spec {
 
     const [url] = req.url.split('?')
 
-    if (this.data[url] === undefined) throw new TypeError(`path ${url} not found in spec`)
+    if (this.data[url] === undefined) throw new MockError(`path ${url} not found in spec`, 404)
 
     const responses = this.data[url].matchRequest(req)
     for (const response of responses) {
@@ -42,7 +43,7 @@ export class Spec {
       }
     }
 
-    throw new TypeError(`no matching response found for ${req.method} ${url}`)
+    throw new MockError(`no matching response found for ${req.method} ${url}`, 404)
   }
 }
 
