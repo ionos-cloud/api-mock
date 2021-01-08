@@ -3,6 +3,8 @@ import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
 import cliService from '../services/cli.service'
+import chalk from 'chalk'
+import {cli} from 'cli-ux'
 
 interface Resp {
   code: number;
@@ -49,7 +51,7 @@ export class Response {
         throw new TypeError(`expected state.set node to be object, got ${typeof this.state.remove}`)
       }
       if (Array.isArray(this.state.set)) {
-        throw new TypeError(`expected state.set node to be object, got array`)
+        throw new TypeError('expected state.set node to be object, got array')
       }
       for (const key of Object.keys(this.state.set)) {
         registry.save(`${Response.STATE_KEY}.${key}`, parser.parseObj(this.state.set[key]))
@@ -65,14 +67,32 @@ export class Response {
       }
     }
 
+    cliService.debug('STATE: ' + JSON.stringify(registry.getAll()))
+  }
+
+  debugResponse(response: Resp): void {
+    cliService.debug('sending response')
+    cliService.indent()
+    cliService.debug(`code: ${response.code}`)
+    cliService.debug('headers:')
+    cliService.indent()
+    cliService.debug(JSON.stringify(response.headers))
+    cliService.outdent()
+    cliService.debug('body:')
+    cliService.indent()
+    cliService.debug(JSON.stringify(response.body))
+    cliService.outdent()
+    cliService.outdent()
   }
 
   doRender(res: ServerResponse, response: Resp): void {
+    this.debugResponse(response)
     res.writeHead(response.code, response.headers);
     if (response.body !== null) {
       res.write(JSON.stringify(response.body));
     }
     res.end();
+    cliService.success('request served')
   }
 
   prepare(req: IncomingMessage, body: any): Resp {
@@ -90,6 +110,10 @@ export class Response {
     const parser = new Parser(reg)
     resp.body = parser.parseObj(this.body)
     resp.headers = parser.parseObj(this.headers)
+    /* fix missing content-type header */
+    if (resp.headers['Content-Type'] === undefined) {
+      resp.headers['Content-Type'] = 'application/json'
+    }
     resp.code = this.code
     return resp
   }
@@ -98,11 +122,31 @@ export class Response {
     if (this.if === undefined || this.if === null || this.if === '') return true
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const state = registry.get(Response.STATE_KEY)
+    const state = registry.get(Response.STATE_KEY) || {}
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const request = {
       body: reqBody,
       headers: req.headers
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const stateGet = (path: string): any =>  {
+      cliService.debug('(stateGet): ' + path)
+      cliService.debug(JSON.stringify(state))
+
+      if (!path.includes('.')) {
+        return state[path]
+      }
+
+      let obj = state
+      for (const part of path.split('.')) {
+        if (obj[part] === undefined) {
+          return undefined
+        }
+        obj = obj[part]
+      }
+
+      return obj
     }
 
     /* eval the if clause */

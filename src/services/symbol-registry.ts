@@ -5,8 +5,6 @@ export class SymbolRegistry {
   protected data: {[key: string]: any} = {}
 
   public save(key: string, value: any): this {
-
-    cliService.debug(`(state) set ${key} = ${JSON.stringify(value)}`)
     if (!key.includes('.')) {
       this.data[key] = value
       return this
@@ -14,7 +12,9 @@ export class SymbolRegistry {
     let obj = this.data
     const parts = key.split('.')
     for (let i = 0; i < parts.length - 1; i++) {
-      obj[parts[i]] = {}
+      if (obj[parts[i]] === undefined) {
+        obj[parts[i]] = {}
+      }
       obj = obj[parts[i]]
     }
     obj[parts[parts.length - 1]] = value
@@ -40,8 +40,6 @@ export class SymbolRegistry {
   }
 
   public del(key: string): this {
-
-    cliService.debug(`(state) removing key ${key}`)
     if (!key.includes('.')) {
       delete this.data[key]
       return this

@@ -34,11 +34,11 @@ export class CliService {
     this.indentLevel -= amount
   }
 
-  public info(msg: string) {
-    cli.info('  ❯ ' + msg)
+  public info(msg: any) {
+    cli.info(this.buildIndent(), '  ❯ ', msg)
   }
 
-  public warn(msg: string) {
+  public warn(msg: any) {
     cli.warn(msg)
   }
 
@@ -46,16 +46,20 @@ export class CliService {
     cli.info(chalk.red('  ! ERROR: ') + chalk.redBright(msg))
   }
 
-  public debug(msg: string) {
+  public success(msg: any) {
+    cli.info(chalk.greenBright('  ✔ '), msg)
+  }
+
+  public debug(msg: any) {
     if (configService.isDebug()) {
       // eslint-disable-next-line no-console
-      console.debug(chalk.gray('  ⇢ (debug)'), chalk.gray(msg))
+      console.debug(this.buildIndent(), chalk.gray('  ⇢ '), chalk.gray(msg))
     }
   }
 
-  public print(msg: string) {
+  public print(msg: any) {
     // eslint-disable-next-line no-console
-    console.log(this.buildIndent() + msg)
+    console.log(this.buildIndent(), msg)
   }
 }
 
