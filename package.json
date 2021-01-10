@@ -13,7 +13,8 @@
     "@oclif/plugin-help": "^3.2.1",
     "jsonpath-plus": "^4.0.0",
     "revivejs": "^1.0.2",
-    "tslib": "^1.14.1"
+    "tslib": "^1.14.1",
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.26.0",

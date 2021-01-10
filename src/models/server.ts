@@ -1,10 +1,8 @@
 import {IncomingMessage, ServerResponse} from 'http'
 import {Spec} from './spec'
 import cliService from '../services/cli.service'
-import registry from '../services/symbol-registry'
 
 import * as http from 'http'
-import chalk from 'chalk'
 
 const DEFAULT_PORT = 8080
 export class Server {
@@ -34,7 +32,6 @@ export class Server {
 
   run(): void {
     cliService.info(`listening on ${this.port}`)
-
     http.createServer((req: IncomingMessage, res: ServerResponse) => {
 
       try {

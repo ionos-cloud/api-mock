@@ -13,7 +13,7 @@ interface Resp {
 
 export class Response {
 
-  static STATE_KEY = 'state'
+  public static STATE_KEY = 'state'
   if?: string = undefined
   state?: {
     set?: {[key: string]: string};
@@ -117,36 +117,35 @@ export class Response {
     return resp
   }
 
+  buildSandbox(req: IncomingMessage, reqBody?: any) {
+    return {
+      request: {
+        body: reqBody,
+        headers: req.headers
+      },
+      stateGet: (path: string): any =>  {
+        const state = registry.get(Response.STATE_KEY) || {}
+        if (!path.includes('.')) {
+          return state[path]
+        }
+
+        let obj = state
+        for (const part of path.split('.')) {
+          if (obj[part] === undefined) {
+            return undefined
+          }
+          obj = obj[part]
+        }
+
+        return obj
+      }
+    }
+  }
+
   checkIf(req: IncomingMessage, reqBody?: any): boolean {
     if (this.if === undefined || this.if === null || this.if === '') return true
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const state = registry.get(Response.STATE_KEY) || {}
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const request = {
-      body: reqBody,
-      headers: req.headers
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const stateGet = (path: string): any =>  {
-      if (!path.includes('.')) {
-        return state[path]
-      }
-
-      let obj = state
-      for (const part of path.split('.')) {
-        if (obj[part] === undefined) {
-          return undefined
-        }
-        obj = obj[part]
-      }
-
-      return obj
-    }
-
     try {
-      return sandboxRun(`return ${this.if}`, {request, stateGet})
+      return sandboxRun(`return ${this.if}`, this.buildSandbox(req, reqBody))
     } catch (error) {
       cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
     }

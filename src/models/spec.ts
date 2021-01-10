@@ -3,15 +3,15 @@ import {Endpoint} from './endpoint'
 import {revive} from 'revivejs'
 import {Response} from './response'
 import cliService from '../services/cli.service'
+const yaml = require('yaml')
 
-import util = require('util')
 import {MockError} from '../errors/mock.error'
 
 export class Spec {
   data: {[key: string]: Endpoint} = {}
 
   parse(spec: string): void {
-    const obj = JSON.parse(spec)
+    const obj = yaml.parse(spec)
 
     for (const path of Object.keys(obj)) {
       if (!isValidPath(path)) {
