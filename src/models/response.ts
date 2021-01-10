@@ -3,7 +3,7 @@ import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
 import cliService from '../services/cli.service'
-import {sandboxRun} from '../utils/sandbox'
+import {Sandbox} from '../utils/sandbox'
 
 interface Resp {
   code: number;
@@ -145,7 +145,8 @@ export class Response {
   checkIf(req: IncomingMessage, reqBody?: any): boolean {
     if (this.if === undefined || this.if === null || this.if === '') return true
     try {
-      return sandboxRun(`return ${this.if}`, this.buildSandbox(req, reqBody))
+      const sandbox = new Sandbox(this.buildSandbox(req, reqBody))
+      return sandbox.run(`return ${this.if}`)
     } catch (error) {
       cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
     }
