@@ -13,6 +13,7 @@
     "indent": ["error", 2, {"SwitchCase":  1}],
     "padded-blocks": "off",
     "no-trailing-spaces": "off",
-    "lines-between-class-members": "off"
+    "lines-between-class-members": "off",
+    "object-curly-spacing": "off"
   }
 }

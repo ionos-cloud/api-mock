@@ -3,8 +3,7 @@ import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
 import cliService from '../services/cli.service'
-import chalk from 'chalk'
-import {cli} from 'cli-ux'
+import {sandboxRun} from '../utils/sandbox'
 
 interface Resp {
   code: number;
@@ -131,9 +130,6 @@ export class Response {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const stateGet = (path: string): any =>  {
-      cliService.debug('(stateGet): ' + path)
-      cliService.debug(JSON.stringify(state))
-
       if (!path.includes('.')) {
         return state[path]
       }
@@ -149,17 +145,13 @@ export class Response {
       return obj
     }
 
-    /* eval the if clause */
-    // eslint-disable-next-line prefer-const
-    let ifResult = false
     try {
-      // eslint-disable-next-line no-eval
-      eval(`ifResult = (${this.if})`)
+      return sandboxRun(`return ${this.if}`, {request, stateGet})
     } catch (error) {
       cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
     }
 
-    return ifResult
+    return false
   }
 
 }
