@@ -2,8 +2,10 @@ import registry from '../services/symbol-registry'
 
 export class Sandbox {
   sandbox: {[key: string]: any} = {}
+  sandboxProxy: any
   constructor(data: { [key: string]: any }) {
     this.sandbox = {...registry.getAll(), ...data}
+    this.sandboxProxy = new Proxy(this.sandbox, {has, get})
   }
 
   public setData(data: { [key: string]: any }) {
@@ -16,8 +18,7 @@ export class Sandbox {
     // eslint-disable-next-line no-new-func
     const code = new Function('sandbox', scopedSrc)
 
-    const sandboxProxy = new Proxy(this.sandbox, {has, get})
-    return code(sandboxProxy)
+    return code(this.sandboxProxy)
   }
 }
 

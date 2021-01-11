@@ -1,5 +1,4 @@
 import {JSONPath} from 'jsonpath-plus'
-import cliService from './cli.service'
 
 export class SymbolRegistry {
   protected data: {[key: string]: any} = {}
