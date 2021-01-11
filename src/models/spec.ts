@@ -1,7 +1,7 @@
-import {IncomingMessage} from 'http'
+import {RequestData} from './request-data'
 import {Endpoint} from './endpoint'
 import {revive} from 'revivejs'
-import {Response} from './response'
+import {ResponseTemplate} from './response-template'
 import cliService from '../services/cli.service'
 const yaml = require('yaml')
 
@@ -23,18 +23,18 @@ export class Spec {
     }
   }
 
-  matchRequest(req: IncomingMessage, reqBody?: any): Response {
+  matchRequest(request: RequestData): ResponseTemplate {
 
-    if (req.url === undefined) throw new TypeError('undefined url')
-    if (req.method === undefined) throw new TypeError('undefined HTTP method')
+    if (request.url === undefined) throw new TypeError('undefined url')
+    if (request.method === undefined) throw new TypeError('undefined HTTP method')
 
-    const [url] = req.url.split('?')
+    const [url] = request.url.split('?')
 
     if (this.data[url] === undefined) throw new MockError(`path ${url} not found in spec`, 404)
 
-    const responses = this.data[url].matchRequest(req)
+    const responses = this.data[url].matchRequest(request)
     for (const response of responses) {
-      if (response.checkIf(req, reqBody)) {
+      if (response.checkIf(request)) {
         cliService.info(`${response.code} response matched`)
         if (response.if !== undefined) {
           cliService.debug(`if condition was: ${response.if}`)
@@ -43,7 +43,7 @@ export class Spec {
       }
     }
 
-    throw new MockError(`no matching response found for ${req.method} ${url}`, 404)
+    throw new MockError(`no matching response found for ${request.method} ${url}`, 404)
   }
 }
 

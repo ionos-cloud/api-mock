@@ -1,8 +1,10 @@
 import {IncomingMessage, ServerResponse} from 'http'
 import {Spec} from './spec'
 import cliService from '../services/cli.service'
+import {RequestData} from './request-data'
 
 import * as http from 'http'
+import {ResponseData} from './response-data'
 
 const DEFAULT_PORT = 8080
 export class Server {
@@ -30,6 +32,18 @@ export class Server {
     res.end();
   }
 
+  getRequestData(req: IncomingMessage): RequestData {
+    cliService.debug('request headers:')
+    cliService.debug(JSON.stringify(req.headers))
+    return {
+      /* the body is filled in later from the stream */
+
+      headers: req.headers,
+      url: req.url,
+      method: req.method
+    }
+  }
+
   run(): void {
     cliService.info(`listening on ${this.port}`)
     http.createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -38,38 +52,43 @@ export class Server {
         cliService.h1(`${req.method} ${req.url}`)
         if (req.method === undefined) return
 
+        const requestData = this.getRequestData(req)
+
         if (['PUT', 'PATCH', 'POST'].includes(req.method)) {
           /* we have a body */
           const buffer: Uint8Array[] = []
-          let body = ''
           req
             .on('data', chunk => {
               buffer.push(chunk)
             })
             .on('end', () => {
-              const bodyStr = Buffer.concat(buffer).toString()
-              body = JSON.parse(bodyStr)
+              requestData.body = Buffer.concat(buffer).toString()
               cliService.debug('request body:')
-              cliService.debug(bodyStr)
-              cliService.debug('request headers:')
-              cliService.debug(JSON.stringify(req.headers))
+              cliService.debug(requestData.body)
               try {
-                this.spec.matchRequest(req, body).render(req, res, body)
+                this.sendResponse(res, this.spec.matchRequest(requestData).render(requestData))
               } catch (error) {
                 this.sendError(res, error)
               }
-            }).on('error', (error) => {
+            }).on('error', error => {
               this.sendError(res, error)
             })
         } else {
-          cliService.debug('request headers:')
-          cliService.debug(JSON.stringify(req.headers))
-          this.spec.matchRequest(req).render(req, res)
+          this.sendResponse(res, this.spec.matchRequest(req).render(requestData))
         }
       } catch (error) {
         this.sendError(res, error)
       }
 
     }).listen(this.port);
+  }
+
+  sendResponse(res: ServerResponse, data: ResponseData): void {
+    res.writeHead(data.code, data.headers);
+    if (data.body !== null) {
+      res.write(JSON.stringify(data.body));
+    }
+    res.end();
+    cliService.success('request served')
   }
 }

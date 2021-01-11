@@ -1,8 +1,9 @@
-import {Response} from './response';
+import {ResponseTemplate} from './response-template';
 import {RevivalSchema} from 'revivejs';
 import {IncomingMessage} from 'http';
 import {Method} from './method';
 import {MockError} from '../errors/mock.error'
+import {RequestData} from './request-data'
 
 export class Endpoint {
   get?: Method = undefined
@@ -28,11 +29,11 @@ export class Endpoint {
     }
   }
 
-  matchRequest(req: IncomingMessage): Response[] {
+  matchRequest(request: RequestData): ResponseTemplate[] {
 
-    if (req.method === undefined) throw new Error('undefined HTTP method')
+    if (request.method === undefined) throw new Error('undefined HTTP method')
 
-    switch (req.method.toLowerCase()) {
+    switch (request.method.toLowerCase()) {
       case 'get':
         if (this.get !== undefined) return this.get.getResponses()
         break
@@ -50,6 +51,6 @@ export class Endpoint {
         break
     }
 
-    throw new MockError(`method ${req.method} not defined in endpoint spec`, 404)
+    throw new MockError(`method ${request.method} not defined in endpoint spec`, 404)
   }
 }

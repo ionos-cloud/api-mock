@@ -1,17 +1,12 @@
-import {IncomingMessage, OutgoingHttpHeaders, ServerResponse} from 'http'
 import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
 import cliService from '../services/cli.service'
 import {Sandbox} from '../utils/sandbox'
+import {ResponseData} from './response-data'
+import {RequestData} from './request-data'
 
-interface Resp {
-  code: number;
-  headers: OutgoingHttpHeaders;
-  body: any;
-}
-
-export class Response {
+export class ResponseTemplate {
 
   public static STATE_KEY = 'state'
   if?: string = undefined
@@ -24,25 +19,25 @@ export class Response {
   headers: {[key: string]: any} = {}
   code = 200
 
-  render(req: IncomingMessage, res: ServerResponse, reqBody?: any): void {
-    let resp = {code: this.code, headers: this.headers, body: this.body}
-    if (reqBody !== undefined) {
-      resp = this.prepare(req, reqBody)
-    }
-    this.updateState(req, resp, reqBody)
-    this.doRender(res, resp)
+  script?: string = undefined
 
+  render(request: RequestData): ResponseData {
+    const response: ResponseData = this.prepareResponse(request)
+
+    const sandbox = new Sandbox(this.buildSandbox(request, response))
+    if (this.script !== undefined) {
+      sandbox.run(this.script)
+    }
+    this.updateState(request, response)
+    return response
   }
 
-  updateState(req: IncomingMessage, response: Resp, reqBody?: any): void {
+  updateState(request: RequestData, response: ResponseData): void {
 
     if (this.state === undefined) return
 
     const reqReg = new SymbolRegistry()
-    reqReg.save('request', {
-      body: reqBody,
-      headers: req.headers
-    }).save('response', response)
+    reqReg.save('request', request).save('response', response)
     const parser = new Parser(reqReg)
 
     if (this.state.set !== undefined) {
@@ -53,7 +48,7 @@ export class Response {
         throw new TypeError('expected state.set node to be object, got array')
       }
       for (const key of Object.keys(this.state.set)) {
-        registry.save(`${Response.STATE_KEY}.${key}`, parser.parseObj(this.state.set[key]))
+        registry.save(`${ResponseTemplate.STATE_KEY}.${key}`, parser.parseObj(this.state.set[key]))
       }
     }
 
@@ -62,14 +57,14 @@ export class Response {
         throw new TypeError(`expected state.remove node to be array, got ${typeof this.state.remove}`)
       }
       for (const key of this.state.remove) {
-        registry.del(`${Response.STATE_KEY}.${key}`)
+        registry.del(`${ResponseTemplate.STATE_KEY}.${key}`)
       }
     }
 
     cliService.debug('STATE: ' + JSON.stringify(registry.getAll()))
   }
 
-  debugResponse(response: Resp): void {
+  debugResponse(response: ResponseData): void {
     cliService.debug('sending response')
     cliService.indent()
     cliService.debug(`code: ${response.code}`)
@@ -84,25 +79,15 @@ export class Response {
     cliService.outdent()
   }
 
-  doRender(res: ServerResponse, response: Resp): void {
-    this.debugResponse(response)
-    res.writeHead(response.code, response.headers);
-    if (response.body !== null) {
-      res.write(JSON.stringify(response.body));
-    }
-    res.end();
-    cliService.success('request served')
-  }
-
-  prepare(req: IncomingMessage, body: any): Resp {
-    const resp: Resp = {
+  prepareResponse(req: RequestData): ResponseData {
+    const resp: ResponseData = {
       code: 200,
       body: '',
       headers: {}
     }
     const reg = new SymbolRegistry()
     reg.save('request', {
-      body,
+      body: req.body,
       headers: req.headers
     })
 
@@ -114,17 +99,17 @@ export class Response {
       resp.headers['Content-Type'] = 'application/json'
     }
     resp.code = this.code
+
+    this.debugResponse(resp)
     return resp
   }
 
-  buildSandbox(req: IncomingMessage, reqBody?: any) {
+  buildSandbox(request: RequestData, response: ResponseData) {
     return {
-      request: {
-        body: reqBody,
-        headers: req.headers
-      },
+      request,
+      response,
       stateGet: (path: string): any =>  {
-        const state = registry.get(Response.STATE_KEY) || {}
+        const state = registry.get(ResponseTemplate.STATE_KEY) || {}
         if (!path.includes('.')) {
           return state[path]
         }
@@ -142,10 +127,10 @@ export class Response {
     }
   }
 
-  checkIf(req: IncomingMessage, reqBody?: any): boolean {
+  checkIf(request: RequestData): boolean {
     if (this.if === undefined || this.if === null || this.if === '') return true
     try {
-      const sandbox = new Sandbox(this.buildSandbox(req, reqBody))
+      const sandbox = new Sandbox(this.buildSandbox(request, {code: this.code, headers: {}, body: ''}))
       return sandbox.run(`return ${this.if}`)
     } catch (error) {
       cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)

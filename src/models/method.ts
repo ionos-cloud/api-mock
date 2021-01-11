@@ -1,10 +1,10 @@
-import {Response} from './response'
+import {ResponseTemplate} from './response-template'
 import {RevivalSchema} from 'revivejs'
 
 export class Method {
-  responses: Response[] = []
+  responses: ResponseTemplate[] = []
 
-  getResponses(): Response[] {
+  getResponses(): ResponseTemplate[] {
     return this.responses
   }
 
@@ -13,7 +13,7 @@ export class Method {
       type: Method,
       properties: {
         responses: {
-          items: Response
+          items: ResponseTemplate
         }
       }
     }

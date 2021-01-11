@@ -3,7 +3,7 @@ import {Server} from '../models/server';
 import {readFileSync} from 'fs';
 import configService from '../services/config.service'
 import registry from '../services/symbol-registry'
-import {Response} from '../models/response'
+import {ResponseTemplate} from '../models/response-template'
 
 export default class Run extends Command {
   static description = 'run a mock server using an endpoint map'
@@ -43,7 +43,7 @@ export default class Run extends Command {
     configService.setDebug(flags.debug)
 
     /* initialize state */
-    registry.save(Response.STATE_KEY, {})
+    registry.save(ResponseTemplate.STATE_KEY, {})
 
     const server = new Server(readFileSync(args.file).toString(), port)
     server.run()
