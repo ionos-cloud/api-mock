@@ -8,7 +8,7 @@ export enum FunctionArgType {
   any = 'any'
 }
 
-export interface TestRunnerFunction {
+export interface ApiMockFunction {
   /* name of the function */
   name: string;
 
@@ -19,33 +19,33 @@ export interface TestRunnerFunction {
   run: (...args: any[]) => any;
 }
 export class FunctionService {
-  protected functions: {[key: string]: TestRunnerFunction} = { }
+  protected functions: {[key: string]: ApiMockFunction} = { }
 
   /**
    * registers a new function
-   * @param {TestRunnerFunction} f - function definition as TestRunnerFunction
+   * @param {ApiMockFunction} f - function definition as ApiMockFunction
    */
-  public register(f: TestRunnerFunction) {
+  public register(f: ApiMockFunction) {
     this.functions[f.name] = f
   }
 
   /**
    * retreive function structure based on name
    * @param {string} name - name of function
-   * @return {TestRunnerFunction} or {undefined} if function was not found
+   * @return {ApiMockFunction} or {undefined} if function was not found
    */
-  public get(name: string): TestRunnerFunction | undefined {
+  public get(name: string): ApiMockFunction | undefined {
     return this.functions[name]
   }
 
   /**
    * Validates function arguments passed to a test runner function
-   * @param {TestRunnerFunction} f function name
+   * @param {ApiMockFunction} f function name
    * @param {any[]} args function args
    *
    * @throws Error if passed args don't match function definition
    */
-  public validateArgs(f: TestRunnerFunction, args: any[]) {
+  public validateArgs(f: ApiMockFunction, args: any[]) {
     if (f.args === undefined || f.args === null) {
       /* the function doesn't declare any args - probably it'll handle validation on its own */
       return

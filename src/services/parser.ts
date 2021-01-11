@@ -2,16 +2,43 @@ import filterService, {Filter} from './filter.service'
 import {SymbolRegistry} from './symbol-registry'
 import functionService from './function.service'
 import debugService from './buffered-debug.service'
+import {Sandbox} from '../models/sandbox'
+import cliService from '../services/cli.service'
 
 export class Parser {
   protected symbolRegistry: SymbolRegistry
+
+  public static SCRIPT_START = '%script{'
+  public static SCRIPT_END = '}'
 
   public constructor(symbolRegistry: SymbolRegistry) {
     this.symbolRegistry = symbolRegistry
   }
 
+  isScript(str: string): string | undefined {
+    const trimmedStr = str.trim()
+
+    /* ugly hack to be able to run js inside object properties in our yaml and avoid casts */
+    if (trimmedStr.startsWith(Parser.SCRIPT_START) && trimmedStr.endsWith(Parser.SCRIPT_END)) {
+      return trimmedStr.substring(Parser.SCRIPT_START.length, trimmedStr.length - Parser.SCRIPT_END.length)
+    }
+
+    return undefined
+  }
   public parse(str: string): string | number {
     let ret: any = str
+
+    const script = this.isScript(str)
+    if (script !== undefined) {
+      const sandbox = new Sandbox(this.symbolRegistry.getAll())
+      try {
+        return sandbox.run(script)
+      } catch (error) {
+        cliService.error(`script threw an error: ${error.message}`)
+        return ''
+      }
+    }
+
     let found = false
     do {
       found = false

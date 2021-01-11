@@ -57,7 +57,8 @@ export class Server {
       pathVars: {},
 
       /* query params will be computed in the spec */
-      queryParams: qp
+      queryParams: qp,
+      localVars: {}
     }
 
   }
@@ -81,7 +82,7 @@ export class Server {
               buffer.push(chunk)
             })
             .on('end', () => {
-              requestData.body = Buffer.concat(buffer).toString()
+              requestData.body = JSON.parse(Buffer.concat(buffer).toString())
               cliService.debug('request body:')
               cliService.debug(requestData.body)
               try {
