@@ -8,7 +8,7 @@ describe('sandbox run works', function () {
     assert.equal(sandbox.run('return foo === "abc"'), true)
   })
 
-  it('should correctly access sandbox data', function () {
+  it('should correctly access sandbox endpoints', function () {
     const sandbox = new Sandbox({a: 1, b: 2})
     assert.equal(sandbox.run('return a + b'), 3)
   })

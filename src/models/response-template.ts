@@ -108,6 +108,8 @@ export class ResponseTemplate {
     return {
       request,
       response,
+      cliService,
+      JSON,
       stateGet: (path: string): any =>  {
         const state = registry.get(ResponseTemplate.STATE_KEY) || {}
         if (!path.includes('.')) {
@@ -127,11 +129,15 @@ export class ResponseTemplate {
     }
   }
 
-  checkIf(request: RequestData): boolean {
+  matchRequest(request: RequestData): boolean {
     if (this.if === undefined || this.if === null || this.if === '') return true
     try {
       const sandbox = new Sandbox(this.buildSandbox(request, {code: this.code, headers: {}, body: ''}))
-      return sandbox.run(`return ${this.if}`)
+      const ifMatched =  sandbox.run(`return ${this.if}`)
+      if (ifMatched) {
+        cliService.debug(`if condition matched: ${this.if}`)
+      }
+      return ifMatched
     } catch (error) {
       cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
     }

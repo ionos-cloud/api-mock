@@ -26,7 +26,7 @@ export class SymbolRegistry {
 
   public get(key: string): any {
     if (key.includes('.')) {
-      /* json path */
+      /* json route */
       const path = '$.' + key.substr(key.indexOf('.') + 1)
       const objName = key.substr(0, key.indexOf('.'))
       const obj = this.data[objName]

@@ -35,13 +35,31 @@ export class Server {
   getRequestData(req: IncomingMessage): RequestData {
     cliService.debug('request headers:')
     cliService.debug(JSON.stringify(req.headers))
+
+    if (req.url === undefined) {
+      /* this should never happen */
+      throw new TypeError('undefine request url')
+    }
+    const [url, qpStr] = req.url?.split('?')
+    let qp: {[key: string]: any} = {}
+    if (qpStr !== undefined) {
+      qp = parseQueryParams(qpStr)
+    }
+
     return {
       /* the body is filled in later from the stream */
 
       headers: req.headers,
-      url: req.url,
-      method: req.method
+      url,
+      method: req.method || '', /* we actually know for sure it'll never be undefined, since it's caught in run() */
+
+      /* pathVars will be computed later on in the spec */
+      pathVars: {},
+
+      /* query params will be computed in the spec */
+      queryParams: qp
     }
+
   }
 
   run(): void {
@@ -51,6 +69,7 @@ export class Server {
       try {
         cliService.h1(`${req.method} ${req.url}`)
         if (req.method === undefined) return
+        if (req.url === undefined) return
 
         const requestData = this.getRequestData(req)
 
@@ -74,7 +93,7 @@ export class Server {
               this.sendError(res, error)
             })
         } else {
-          this.sendResponse(res, this.spec.matchRequest(req).render(requestData))
+          this.sendResponse(res, this.spec.matchRequest(requestData).render(requestData))
         }
       } catch (error) {
         this.sendError(res, error)
@@ -91,4 +110,25 @@ export class Server {
     res.end();
     cliService.success('request served')
   }
+
+}
+
+function parseQueryParams(qpStr: string): {[key: string]: any} {
+  const pairs = qpStr.split('&')
+  const ret: {[key: string]: any} = {}
+  for (const pair of pairs) {
+    const [key, val] = pair.split('=')
+    if (val === undefined) {
+      ret[key] = true
+    } else if (ret[key] === undefined) {
+      ret[key] = val
+    } else {
+      if (typeof ret[key] !== 'object' || !Array.isArray(ret[key])) {
+        ret[key] = [ret[key]]
+      }
+      ret[key].push(val)
+    }
+  }
+
+  return ret
 }
