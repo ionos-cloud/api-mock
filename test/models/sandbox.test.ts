@@ -1,4 +1,4 @@
-import { Sandbox } from '../../src/utils/sandbox'
+import { Sandbox } from '../../src/models/sandbox'
 import { assert } from 'chai'
 import registry from '../../src/services/symbol-registry'
 

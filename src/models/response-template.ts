@@ -2,7 +2,7 @@ import {SymbolRegistry} from '../services/symbol-registry'
 import {Parser} from '../services/parser'
 import registry from '../services/symbol-registry'
 import cliService from '../services/cli.service'
-import {Sandbox} from '../utils/sandbox'
+import {Sandbox} from './sandbox'
 import {ResponseData} from './response-data'
 import {RequestData} from './request-data'
 
@@ -26,7 +26,12 @@ export class ResponseTemplate {
 
     const sandbox = new Sandbox(this.buildSandbox(request, response))
     if (this.script !== undefined) {
-      sandbox.run(this.script)
+      try {
+        sandbox.run(this.script)
+      } catch (error) {
+        cliService.error(`script defined for ${this.code} response threw an error: ${error.message}`)
+      }
+
     }
     this.updateState(request, response)
     return response
@@ -106,10 +111,19 @@ export class ResponseTemplate {
 
   buildSandbox(request: RequestData, response: ResponseData) {
     return {
+      /* useful data */
+      ...registry.getAll(),
       request,
       response,
-      cliService,
+
+      /* let them serialize objects */
       JSON,
+
+      /* output support */
+      cliService,
+      console,
+
+      /* useful methods */
       stateGet: (path: string): any =>  {
         const state = registry.get(ResponseTemplate.STATE_KEY) || {}
         if (!path.includes('.')) {
@@ -139,7 +153,7 @@ export class ResponseTemplate {
       }
       return ifMatched
     } catch (error) {
-      cliService.error(`error in 'if' condition for ${this.code} response: ${error.message}`)
+      cliService.error(`'if' condition '${this.if}' for ${this.code} response threw an error: ${error.message}`)
     }
 
     return false

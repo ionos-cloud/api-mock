@@ -1,10 +1,8 @@
-import registry from '../services/symbol-registry'
-
 export class Sandbox {
   sandbox: {[key: string]: any} = {}
   sandboxProxy: any
   constructor(data: { [key: string]: any }) {
-    this.sandbox = {...registry.getAll(), ...data}
+    this.sandbox = data
     this.sandboxProxy = new Proxy(this.sandbox, {has, get})
   }
 
