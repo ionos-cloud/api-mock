@@ -1,6 +1,5 @@
 import {ResponseTemplate} from './response-template';
 import {RevivalSchema} from 'revivejs';
-import {IncomingMessage} from 'http';
 import {Method} from './method';
 import {MockError} from '../errors/mock.error'
 import {RequestData} from './request-data'

@@ -7,14 +7,13 @@ import registry from '../services/symbol-registry'
 export class State {
   public static KEY = 'state'
 
-  public static init(): State {
+  public static init(): void {
     registry.save(State.KEY, {})
-    return this
   }
 
-  public static set(path: string, val: any): State {
+  public static set(path: string, val: any): any {
     registry.save(`${State.KEY}.${path}`, val)
-    return this
+    return val
   }
 
   public static get(path: string): any {
@@ -43,28 +42,30 @@ export class State {
     return val
   }
 
-  public static del(path: string): State {
+  public static del(path: string): void {
     registry.del(`${State.KEY}.${path}`)
-    return this
   }
 
-  public static inc(counter: string, step = 1): State {
+  public static inc(counter: string, step = 1): any {
     if (step < 0) {
       throw new TypeError('negative inc step')
     }
     const currentValue = State.getOrSetObj(counter, 0)
     State.set(counter, currentValue + step)
-    return this
+    return currentValue + step
   }
 
-  public static dec(counter: string, step = 1): State {
+  public static dec(counter: string, step = 1): any {
     if (step < 0) {
       throw new TypeError('negative dec step')
     }
     const currentValue = State.getOrSetObj(counter, 0)
     if (currentValue >= step) {
       State.set(counter, currentValue - step)
+      return currentValue - step
+    } else {
+      State.set(counter, 0)
+      return 0
     }
-    return this
   }
 }

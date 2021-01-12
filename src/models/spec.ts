@@ -42,4 +42,3 @@ function isValidPath(path: string): boolean {
   return path.match('[/a-zA-Z0-9{}_-]+') !== null
 }
 
-
