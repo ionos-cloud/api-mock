@@ -63,9 +63,9 @@ export class State {
     if (currentValue >= step) {
       State.set(counter, currentValue - step)
       return currentValue - step
-    } else {
-      State.set(counter, 0)
-      return 0
     }
+    State.set(counter, 0)
+    return 0
+
   }
 }
