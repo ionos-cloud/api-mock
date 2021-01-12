@@ -3,6 +3,7 @@
 
 Ionos Cloud API Mock Engine
 
+![CI](https://github.com/ionos-cloud/api-mock/workflows/CI/badge.svg)
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 
 <!-- toc -->
