@@ -12,12 +12,11 @@ export class Spec {
   parse(spec: string): void {
     const obj = yaml.parse(spec)
 
-    for (const path of Object.keys(obj)) {
+    this.endpoints = revive(obj, { map: Endpoint }, { failOnUnknownFields: true })
+    for (const path of Object.keys(this.endpoints)) {
       if (!isValidPath(path)) {
         throw new TypeError(`invalid path '${path}'`)
       }
-
-      this.endpoints[path] = revive(obj[path], Endpoint, {failOnUnknownFields: true})
       this.endpoints[path].setPath(path)
     }
   }
